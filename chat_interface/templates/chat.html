@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Assistant Chat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --primary-dark: #0056b3;
+            --secondary-color: #6c757d;
+            --background-light: #f0f2f5;
+            --card-background: #ffffff;
+            --chat-bubble-user: #007bff;
+            --chat-bubble-bot: #e9e9eb;
+            --text-color-user: white;
+            --text-color-bot: #333;
+            --border-color: #e0e0e0;
+            --shadow-light: rgba(0, 0, 0, 0.08);
+            --price-color: #28a745;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+            box-sizing: border-box;
+        }
+
+        #chat-container {
+            width: 95%;
+            max-width: 900px; /* افزایش عرض برای نمایش بهتر محصولات */
+            height: 90vh; /* ارتفاع بیشتر */
+            min-height: 600px;
+            background-color: var(--card-background);
+            border-radius: 12px;
+            box-shadow: 0 8px 30px var(--shadow-light);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background-color: var(--primary-color);
+            color: var(--text-color-user);
+            padding: 15px 20px;
+            font-size: 1.2em;
+            font-weight: 600;
+            text-align: center;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+        }
+
+        #chat-box {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto;
+            border-bottom: 1px solid var(--border-color);
+            scroll-behavior: smooth;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex; /* استفاده از فلکس برای چیدمان حباب چت */
+            align-items: flex-start;
+        }
+
+        .message-content {
+            padding: 12px 18px;
+            border-radius: 20px; /* گوشه‌های گرد برای حباب چت */
+            max-width: 75%;
+            line-height: 1.5;
+            word-wrap: break-word;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* سایه کوچک برای عمق */
+        }
+
+        .message .message-content.user {
+            background-color: var(--chat-bubble-user) !important;
+            color: var(--text-color-user);
+            margin-left: auto;
+            border-bottom-right-radius: 5px; /* گوشه کمتر گرد در سمت کاربر */
+        }
+
+        .message .message-content.bot {
+            background-color: var(--chat-bubble-bot);
+            color: var(--text-color-bot);
+            margin-right: auto;
+            border-bottom-left-radius: 5px; /* گوشه کمتر گرد در سمت ربات */
+        }
+
+        #input-area {
+            display: flex;
+            padding: 20px;
+            background-color: var(--background-light);
+            border-top: 1px solid var(--border-color);
+        }
+
+        #user-input {
+            flex-grow: 1;
+            padding: 12px 18px;
+            border: 1px solid var(--border-color);
+            border-radius: 25px;
+            font-size: 1em;
+            outline: none;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        #user-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+
+        #send-button {
+            background-color: var(--primary-color);
+            color: var(--text-color-user);
+            border: none;
+            padding: 12px 22px;
+            border-radius: 25px;
+            margin-left: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        #send-button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        /* --- Professional Product Display Styles --- */
+
+        .product-card-container {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: var(--card-background);
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border-color);
+            overflow: hidden; /* For float clearing or general containment */
+        }
+
+        .product-card-main-heading {
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #222;
+        }
+
+        .product-main-details {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #f5f5f5;
+            padding-bottom: 15px;
+        }
+
+        .product-main-image {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            flex-shrink: 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+        }
+
+        .main-product-info {
+            flex-grow: 1;
+        }
+
+        .product-title-link {
+            font-size: 1.1em;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-decoration: none;
+            display: block;
+            margin-bottom: 5px;
+            transition: color 0.2s ease;
+        }
+        .product-title-link:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        .product-title-text { /* For when no link is available */
+            font-size: 1.1em;
+            font-weight: 700;
+            color: #333;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .product-price {
+            font-size: 1.1em;
+            font-weight: 700;
+            color: var(--price-color);
+            margin-top: 5px;
+        }
+
+        .product-category {
+            font-size: 0.9em;
+            color: var(--secondary-color);
+            margin-top: 3px;
+        }
+
+        .related-products-heading {
+            font-size: 1em;
+            font-weight: 600;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            color: #444;
+            text-align: center;
+            border-top: 1px dashed #eee;
+            padding-top: 15px;
+        }
+
+        .product-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Minimum 180px width for cards */
+            gap: 15px;
+        }
+
+        .product-item {
+            background-color: var(--card-background);
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.03);
+            cursor: pointer;
+        }
+
+        .product-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .product-thumbnail {
+            max-width: 90px;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+            flex-shrink: 0;
+        }
+
+        .product-item-title {
+            font-size: 0.9em;
+            font-weight: 600;
+            color: var(--primary-color);
+            text-decoration: none;
+            display: block; /* Ensures title takes full width */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap; /* Prevents wrapping, forces ellipsis */
+            width: 100%; /* Ensures ellipsis works */
+        }
+        .product-item-title:hover {
+             text-decoration: underline;
+        }
+
+        .product-item-price {
+            font-weight: 700;
+            color: var(--price-color);
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        
+        /* برای سازگاری بهتر با خروجی HTML در nlp_engine */
+        .message.bot .message-content p {
+            margin: 0;
+        }
+        .message.bot .message-content ul {
+            padding-left: 20px;
+            margin: 0;
+        }
+        .message.bot .message-content li {
+            margin-bottom: 5px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            #chat-container {
+                width: 100%;
+                height: 100vh;
+                border-radius: 0;
+            }
+            .chat-header {
+                border-radius: 0;
+            }
+            #chat-box {
+                padding: 15px;
+            }
+            #input-area {
+                padding: 15px;
+            }
+            .message-content {
+                max-width: 90%;
+            }
+            .product-list {
+                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); /* کوچکتر کردن کارت ها در موبایل */
+            }
+            .product-main-image {
+                width: 100px;
+                height: 100px;
+            }
+            .product-thumbnail {
+                max-width: 70px;
+                height: 70px;
+            }
+            .product-item-title {
+                white-space: normal; /* اجازه شکست خط در عناوین طولانی در موبایل */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <div class="chat-header">
+            AI Assistant
+        </div>
+        <div id="chat-box">
+            <!-- Messages will be appended here -->
+        </div>
+        <div id="input-area">
+            <input type="text" id="user-input" placeholder="Type your message...">
+            <button id="send-button">Send</button>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript">
+        // این کد JS از طرح اولیه شماست اما با انتخابگرهای جدید ID/Class مطابقت داده شده
+        // همچنین از jQuery استفاده شده است که شما قبلاً در پروژه خود داشتید.
+
+        const userInput = $('#user-input');
+        const sendButton = $('#send-button');
+        const chatBox = $('#chat-box');
+
+        // تابع برای اضافه کردن پیام به چت باکس
+        function addMessageToChat(sender, messageHtml) {
+            // ایجاد یک عنصر div برای پیام
+            const $messageDiv = $('<div class="message"></div>');
+            // ایجاد محتوای پیام و افزودن کلاس فرستنده
+            const $messageContent = $('<div class="message-content"></div>');
+            $messageContent.addClass(sender);
+            
+            // استفاده از .html() برای رندر کردن HTML (برای محصولات)
+            $messageContent.html(messageHtml);
+            
+            // افزودن محتوا به دیو پیام و سپس به چت باکس
+            $messageDiv.append($messageContent);
+            chatBox.append($messageDiv);
+            
+            // اسکرول به پایین
+            chatBox.scrollTop(chatBox.prop('scrollHeight'));
+        }
+
+        // تابع برای ارسال پیام به FastAPI API
+        async function sendMessageToAPI(messageText) {
+            try {
+                // آدرس API شما که پیام را پردازش می کند
+                // این مسیر بر اساس تنظیمات web_chat.py و main.py به /chat/ می رود
+                const response = await fetch("/chat/", { 
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ text: messageText, source: "chat", lang: "en" })
+                });
+                const data = await response.json();
+                return data.reply; // انتظار داریم پاسخ از FastAPI در فیلد 'reply' باشد
+            } catch (error) {
+                console.error("Error sending message to API:", error);
+                return "Sorry, something went wrong."; // مدیریت خطا
+            }
+        }
+
+        // رویدادها برای ارسال پیام
+        sendButton.on('click', function() {
+            sendMessage();
+        });
+
+        userInput.on('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // تابع اصلی ارسال پیام (مدیریت پیام کاربر و پاسخ ربات)
+        async function sendMessage() {
+            const message = userInput.val().trim();
+            if (message === '') return;
+
+            addMessageToChat('user', message); // نمایش پیام کاربر
+            userInput.val(''); // پاک کردن ورودی
+
+            // اضافه کردن حالت بارگذاری
+            addMessageToChat('bot', '<span class="loading-dots">...</span>');
+            chatBox.find('.loading-dots').last().parent().addClass('loading-message'); // یک کلاس برای شناسایی پیام لودینگ
+
+            const botReply = await sendMessageToAPI(message);
+            
+            // حذف پیام لودینگ و نمایش پاسخ واقعی
+            chatBox.find('.loading-message').last().remove(); // یا جایگزینی محتوا
+
+            addMessageToChat('bot', botReply); // نمایش پاسخ ربات
+        }
+
+        // پیام خوش آمد گویی اولیه از ربات
+        $(document).ready(function() {
+            addMessageToChat('bot', 'Hello! How can I help you today?');
+        });
+    </script>
+</body>
+</html>
