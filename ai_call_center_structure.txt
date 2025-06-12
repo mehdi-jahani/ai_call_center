@@ -1,0 +1,50 @@
+ai_call_center/
+│
+├── main.py                      # نقطه ورود اصلی اپلیکیشن (FastAPI app)
+├── config.py                    # تنظیمات کلی (پورت، کلیدها، مسیرها و ...)
+├── requirements.txt             # لیست کتابخانه‌های موردنیاز
+├── README.md                    # توضیح پروژه
+│
+├── voice_interface/            # ماژول تماس صوتی
+│   ├── __init__.py
+│   ├── twilio_handler.py        # مدیریت تماس‌های VoIP با Twilio
+│   └── webhook_routes.py        # دریافت تماس‌ها از وب‌هوک Twilio
+│
+├── chat_interface/             # ماژول چت متنی
+│   ├── __init__.py
+│   ├── whatsapp.py              # اتصال به WhatsApp API
+│   └── web_chat.py              # اتصال چت وب‌سایت (مثلاً با Socket یا API)
+│
+├── speech_to_text/             # تبدیل گفتار به متن
+│   ├── __init__.py
+│   ├── whisper_handler.py       # استفاده از Whisper برای STT
+│   └── utils.py
+│
+├── nlp_engine/                 # موتور پردازش زبان
+│   ├── __init__.py
+│   ├── intent_classifier.py     # تشخیص intent کاربر
+│   ├── response_generator.py    # تولید پاسخ با LLM یا الگوهای ثابت
+│   └── prompt_templates.py      # الگوهای آماده برای LLM
+│
+├── text_to_speech/            # تبدیل متن به صوت
+│   ├── __init__.py
+│   ├── kokoro_handler.py        # استفاده از مدل TTS مانند Kokoro
+│   └── player.py                # پخش یا ذخیره فایل صوتی خروجی
+│
+├── api_interface/             # API برای وردپرس و سایر سیستم‌ها
+│   ├── __init__.py
+│   ├── routes.py                # تمام endpointهای REST API
+│   ├── models.py                # ساختار ورودی/خروجی API با Pydantic
+│   └── integrations.py          # ارتباط با وردپرس یا CMS دیگر
+│
+├── logs/                      # لاگ و گزارشات مکالمه
+│   ├── __init__.py
+│   ├── logger.py                # ابزار ثبت لاگ
+│   ├── store.py                 # ذخیره لاگ‌ها در فایل/SQLite
+│   └── samples/                 # نمونه لاگ‌های ذخیره‌شده
+│
+└── utils/                     # ابزارها و توابع مشترک
+    ├── __init__.py
+    ├── file_utils.py            # کار با فایل‌ها
+    ├── audio_utils.py           # ابزارهای صوتی
+    └── time_utils.py            # مدیریت زمان و timestamp
