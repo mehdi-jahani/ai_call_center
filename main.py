@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from api_interface.routes import router as api_router
 from chat_interface.web_chat import router as chat_ui_router
+from speech_to_text.whisper_handler import load_whisper_model # اضافه شده برای بارگذاری مدل Whisper
 
 app = FastAPI()
 
@@ -16,9 +17,19 @@ app.include_router(api_router)
 # و تصاویر شما در 'data/images' قرار گرفته‌اند.
 app.mount("/static", StaticFiles(directory="data"), name="static")
 
+@app.on_event("startup")
+async def startup_event():
+    """
+    این تابع در زمان شروع برنامه اجرا می‌شود.
+    مدل Whisper را در اینجا بارگذاری می‌کنیم تا فقط یک بار انجام شود.
+    """
+    print("Application startup event: Loading Whisper AI model...")
+    load_whisper_model() # بارگذاری مدل Whisper (Speech-to-Text)
+
 @app.get("/")
 def root():
     """
     مسیر اصلی برنامه FastAPI.
     """
     return {"message": "AI Call Center is running"}
+

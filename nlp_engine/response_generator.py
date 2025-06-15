@@ -2,14 +2,10 @@ import pandas as pd
 import os
 import re
 import random
-# import json # No longer needed for LLM API
-# import requests # No longer needed for LLM API
 
-# مسیر فایل CSV
 PRODUCTS_CSV_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../data/products.csv')
-
-# بارگذاری اطلاعات محصولات از CSV
 products_df = pd.DataFrame()
+
 try:
     products_df = pd.read_csv(PRODUCTS_CSV_PATH)
     print(f"Products loaded successfully from: {PRODUCTS_CSV_PATH}")
@@ -28,8 +24,6 @@ def get_keywords_from_text(text):
         return []
     return re.findall(r'\b\w+\b', str(text).lower())
 
-# Removed get_llm_response as per user request (no external API calls)
-
 def generate_response(message: str) -> str:
     message_lower = message.lower()
     message_words = get_keywords_from_text(message_lower)
@@ -41,7 +35,6 @@ def generate_response(message: str) -> str:
         return "Goodbye! Feel free to ask if you have more questions later."
 
     # --- 2. Handle simple Conversational / Non-Product-Related messages (prioritize these) ---
-    # Expanded keywords and added more specific responses for general questions
     if "thank you" in message_lower or "thanks" in message_lower or "i appreciate it" in message_lower:
         return "You're most welcome! Is there anything else I can help you with regarding our products?"
     if "how are you" in message_lower or "what's up" in message_lower:
@@ -70,53 +63,64 @@ def generate_response(message: str) -> str:
         else:
             return "I'm sorry, I don't have product information available at the moment."
     
-    # --- 4. Handle Specific "I want/need a [Product Name]" Intent (Title Only Search) ---
-    product_request_phrases = ["i want a ", "i need a ", "i'm looking for a "]
+    # --- 4. Handle Specific "I want/need a [Product Name]" Intent (Title Only Search with Best Match) ---
+    product_request_phrases = ["i want a ", "i need a ", "i'm looking for a ", "find me a "] # Expanded phrases
     is_specific_title_search_intent = False
     requested_product_name = ""
 
     for phrase in product_request_phrases:
-        if message_lower.startswith(phrase): # Use startswith for phrases like "i want a "
+        if message_lower.startswith(phrase):
+            # Remove the phrase and then strip leading/trailing whitespace and punctuation
             requested_product_name = message_lower.split(phrase, 1)[1].strip()
+            # NEW: Remove trailing punctuation from the requested product name
+            requested_product_name = re.sub(r'[.,!?;:]+$', '', requested_product_name).strip()
             is_specific_title_search_intent = True
             break
     
     if is_specific_title_search_intent and requested_product_name:
-        common_nouns_that_could_be_product_names = {"item", "product", "device", "thing", "something"}
+        common_nouns_that_could_be_product_names = {"item", "product", "device", "thing", "something", "any"} # Expanded
         if requested_product_name in common_nouns_that_could_be_product_names:
             return "Could you please be more specific about the product you are looking for?"
 
-        # Perform search ONLY on product titles for exact substring or strong match
-        # Using regex for more flexible matching (whole word or strong substring)
-        escaped_product_name = re.escape(requested_product_name)
-        title_matches_df = products_df[
-            products_df['title'].str.lower().str.contains(r'\b' + escaped_product_name + r'\b', na=False) |
-            products_df['title'].str.lower().str.contains(escaped_product_name, na=False)
-        ]
+        best_title_match_product = None
+        highest_title_match_score = -1
 
-        if not title_matches_df.empty:
-            top_title_matches = title_matches_df.head(6)
-            response_html_parts = [f"<p class='category-heading'>Here are some products matching your request in their titles:</p>"]
-            response_html_parts.append("<div class='product-list'>")
-            for _, prod in top_title_matches.iterrows():
-                prod_title_html = f"<a href='{prod['url']}' target='_blank' class='product-item-title'>{prod['title']}</a>" if pd.notna(prod.get('url')) else f"<span class='product-item-title'>{prod['title']}</span>"
-                prod_image_html = f"<img src='{prod['image-url']}' alt='{prod['title']}' class='product-thumbnail'>" if pd.notna(prod.get('image-url')) else f"<img src='https://placehold.co/90x90/E0E0E0/6C757D?text=No+Image' alt='No image' class='product-thumbnail'>"
-                
-                prod_info_html = (
-                    f"<div class='product-item'>"
-                    f"{prod_image_html}"
-                    f"{prod_title_html}"
-                    f"<p class='product-item-price'>${prod['price']}</p>"
-                    f"</div>"
-                )
-                response_html_parts.append(prod_info_html)
-            response_html_parts.append("</div>")
-            return "\n".join(response_html_parts).strip()
+        escaped_requested_name = re.escape(requested_product_name)
+        # Try to find the best match based on title
+        for index, row in products_df.iterrows():
+            product_title_lower = str(row.get('title', '')).lower()
+            current_score = 0
+
+            # 1. Exact title match (highest score)
+            if product_title_lower == requested_product_name:
+                current_score = 1000
+            # 2. Starts with the requested name
+            elif product_title_lower.startswith(requested_product_name):
+                current_score = 500 + (len(requested_product_name) / max(1, len(product_title_lower))) * 100 # Closer to full title is better
+            # 3. Contains as a whole word
+            elif re.search(r'\b' + escaped_requested_name + r'\b', product_title_lower):
+                current_score = 300 + (len(requested_product_name) / max(1, len(product_title_lower))) * 50 # Longer match in shorter title
+            # 4. Contains as a substring
+            elif requested_product_name in product_title_lower:
+                current_score = 100 + (len(requested_product_name) / max(1, len(product_title_lower))) * 20 # Basic substring match
+
+            if current_score > highest_title_match_score:
+                highest_title_match_score = current_score
+                best_title_match_product = row
+            # If scores are equal, prefer shorter title (often more direct)
+            elif current_score == highest_title_match_score and best_title_match_product is not None:
+                if len(product_title_lower) < len(str(best_title_match_product.get('title', '')).lower()):
+                    best_title_match_product = row
+
+
+        if best_title_match_product is not None and highest_title_match_score >= 100: # Minimum score to consider a good title match
+            # If a best match is found, use the standard product formatting function
+            return format_product_response(best_title_match_product, products_df, message_lower)
         else:
-            return f"I'm sorry, I couldn't find any products with '{requested_product_name}' specifically in their titles. Can you try a different name or a more general search?"
+            # If no good title match found, provide a specific fallback
+            return f"I'm sorry, I couldn't find a direct match for '{requested_product_name}' in our product titles. Please try a different name or a more general search, or specify an ID if you know it."
 
-    # --- 5. General Knowledge Query Check ---
-    # Expanded with more comprehensive general knowledge phrasing
+    # --- 5. General Knowledge Query Check (with rule-based fallback) ---
     general_knowledge_phrases = [
         "what is the capital of", "tell me about", "who is", "what is", "where is", "when is",
         "define", "explain", "meaning of", "about", "information about", "general knowledge",
@@ -124,12 +128,11 @@ def generate_response(message: str) -> str:
         "tell me something about", "can you explain", "give me details on", "facts about",
         "meaning of life", "universe", "science", "mathematics", "philosophy", "art", "music",
         "geography", "politics", "current events", "celebrity", "biography", "recipe", "tutorial",
-        "how to make", "what should i do", "advice", "opinion on", "what about", "is it true"
+        "how to make", "what should i do", "advice", "opinion on", "what about", "is it true",
+        "how far", "how many", "what year", "what kind of animal", "who invented", "what's the weather", "latest news"
     ]
     is_general_knowledge_query = any(phrase in message_lower for phrase in general_knowledge_phrases)
 
-    # Strong product indicators to help differentiate from general queries
-    # Expanded with more general and specific product-related terms
     product_indicators = [
         "product", "item", "device", "gadget", "appliance", "tool", "accessory", "component", "part",
         "shaver", "watch", "lamp", "chair", "speaker", "earbuds", "headphone", "charger", "cable",
@@ -149,8 +152,9 @@ def generate_response(message: str) -> str:
     ]
     has_strong_product_indicator = any(indicator in message_lower for indicator in product_indicators)
 
-    # If it's a general knowledge query AND lacks strong product indicators, provide fallback
+    # If it's a general knowledge query AND lacks strong product indicators, provide rule-based fallback
     if is_general_knowledge_query and not has_strong_product_indicator:
+        # Fallback to a rule-based response for general knowledge questions
         return "I'm sorry, I specialize in providing information about our products and services. I cannot answer general knowledge questions. Is there anything product-related I can assist you with?"
 
 
@@ -207,7 +211,7 @@ def generate_response(message: str) -> str:
         if category.lower() in message_lower:
             category_products = products_df[products_df['category'].str.lower() == category.lower()]
             if not category_products.empty:
-                top_category_products = category_products.head(6)
+                top_category_products = category_products.head(6) # Display up to 6 products
                 response_html_parts = [f"<p class='category-heading'>In the '{category}' category, we have several items. Here are a few:</p>"]
                 response_html_parts.append("<div class='product-list'>")
                 for i, prod in top_category_products.iterrows():
@@ -218,7 +222,7 @@ def generate_response(message: str) -> str:
                         prod_title_html = f"<span class='product-item-title'>{prod['title']}</span>"
                     
                     prod_image_html = ""
-                    if pd.notna(prod.get('image-url')):
+                    if pd.notna(prod.get('image-url')): # Changed from 'image-url' to 'image-url'
                         prod_image_html = f"<img src='{prod['image-url']}' alt='{prod['title']}' class='product-thumbnail'>"
                     else:
                         prod_image_html = f"<img src='https://placehold.co/90x90/E0E0E0/6C757D?text=No+Image' alt='No image' class='product-thumbnail'>"
@@ -247,7 +251,7 @@ def format_product_response(product_row, all_products_df, message_lower):
     response_html_parts.append("<p class='product-card-main-heading'>We found:</p>")
     response_html_parts.append("<div class='product-main-details'>")
 
-    if pd.notna(product_row.get('image-url')):
+    if pd.notna(product_row.get('image-url')): # Changed from 'image-url' to 'image-url'
         response_html_parts.append(f"<img src='{product_row['image-url']}' alt='{product_row['title']}' class='product-main-image'>")
     else:
         response_html_parts.append(f"<img src='https://placehold.co/120x120/E0E0E0/6C757D?text=No+Image' alt='No image' class='product-main-image'>")
@@ -264,7 +268,7 @@ def format_product_response(product_row, all_products_df, message_lower):
     response_html_parts.append("</div></div></div>")
 
     # Find related products
-    related_products = find_related_products(product_row, all_products_df, num_results=6)
+    related_products = find_related_products(product_row, all_products_df, num_results=6) # Display up to 6 related products
     
     if related_products:
         response_html_parts.append("<p class='related-products-heading'>Perhaps you'd also be interested in these related items:</p>")
@@ -278,7 +282,7 @@ def format_product_response(product_row, all_products_df, message_lower):
                 prod_title_html = f"<span class='product-item-title'>{prod['title']}</span>"
             
             prod_image_html = ""
-            if pd.notna(prod.get('image-url')):
+            if pd.notna(prod.get('image-url')): # Changed from 'image-url' to 'image-url'
                 prod_image_html = f"<img src='{prod['image-url']}' alt='{prod['title']}' class='product-thumbnail'>"
             else:
                 prod_image_html = f"<img src='https://placehold.co/90x90/E0E0E0/6C757D?text=No+Image' alt='No image' class='product-thumbnail'>"
@@ -296,7 +300,7 @@ def format_product_response(product_row, all_products_df, message_lower):
     return "\n".join(response_html_parts).strip()
 
 
-def find_related_products(main_product, all_products_df, num_results=6):
+def find_related_products(main_product, all_products_df, num_results=6): # Adjusted num_results to 6
     """
     Finds related products based on category, and then by shared keywords.
     Excludes the main_product itself.
@@ -345,7 +349,10 @@ def find_related_products(main_product, all_products_df, num_results=6):
             scored_products.sort(key=lambda x: x[0], reverse=True)
             for score, prod in scored_products:
                 if len(related) < num_results and prod['id'] not in [p['id'] for p in related]:
-                    related.append(prod.to_dict())
+                    unique_related.append(prod)
+                    # Add to related list only if not already there, to avoid duplicates
+                    # This check is actually handled by 'seen_ids' at the end, but keeping here for clarity
+                    # related.append(prod.to_dict())
 
     unique_related = []
     seen_ids = set()

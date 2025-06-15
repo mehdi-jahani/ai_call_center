@@ -1,1 +1,8 @@
 requests
+transformers
+torch
+soundfile
+librosa
+datasets
+accelerate
+torchaudio

@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Assistant Chat</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for microphone icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         :root {
             --primary-color: #007bff;
@@ -12,13 +14,14 @@
             --secondary-color: #6c757d;
             --background-light: #f0f2f5;
             --card-background: #ffffff;
-            --chat-bubble-user: #007bff;
-            --chat-bubble-bot: #e9e9eb;
+            --chat-bubble-user: #007bff; /* User messages: Blue background */
+            --chat-bubble-bot: #FFFFFF; /* Bot messages: White background */
             --text-color-user: white;
             --text-color-bot: #333;
             --border-color: #e0e0e0;
             --shadow-light: rgba(0, 0, 0, 0.08);
             --price-color: #28a745;
+            --record-red: #e74c3c;
         }
 
         body {
@@ -36,8 +39,8 @@
 
         #chat-container {
             width: 95%;
-            max-width: 900px; /* افزایش عرض برای نمایش بهتر محصولات */
-            height: 90vh; /* ارتفاع بیشتر */
+            max-width: 900px;
+            height: 90vh;
             min-height: 600px;
             background-color: var(--card-background);
             border-radius: 12px;
@@ -68,35 +71,36 @@
 
         .message {
             margin-bottom: 15px;
-            display: flex; /* استفاده از فلکس برای چیدمان حباب چت */
+            display: flex;
             align-items: flex-start;
         }
 
         .message-content {
             padding: 12px 18px;
-            border-radius: 20px; /* گوشه‌های گرد برای حباب چت */
+            border-radius: 20px;
             max-width: 75%;
             line-height: 1.5;
             word-wrap: break-word;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* سایه کوچک برای عمق */
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
 
         .message .message-content.user {
             background-color: var(--chat-bubble-user) !important;
             color: var(--text-color-user);
             margin-left: auto;
-            border-bottom-right-radius: 5px; /* گوشه کمتر گرد در سمت کاربر */
+            border-bottom-right-radius: 5px;
         }
 
         .message .message-content.bot {
             background-color: var(--chat-bubble-bot);
             color: var(--text-color-bot);
             margin-right: auto;
-            border-bottom-left-radius: 5px; /* گوشه کمتر گرد در سمت ربات */
+            border-bottom-left-radius: 5px;
         }
 
         #input-area {
             display: flex;
+            align-items: center; /* Align items vertically in center */
             padding: 20px;
             background-color: var(--background-light);
             border-top: 1px solid var(--border-color);
@@ -117,7 +121,7 @@
             box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
         }
 
-        #send-button {
+        #send-button, #record-button {
             background-color: var(--primary-color);
             color: var(--text-color-user);
             border: none;
@@ -128,11 +132,37 @@
             font-size: 1em;
             font-weight: 600;
             transition: background-color 0.3s ease, transform 0.2s ease;
+            display: flex; /* For icon and text alignment */
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0; /* Prevent buttons from shrinking */
         }
 
-        #send-button:hover {
+        #send-button:hover, #record-button:hover {
             background-color: var(--primary-dark);
             transform: translateY(-1px);
+        }
+
+        #record-button i {
+            margin-right: 5px;
+        }
+        
+        #record-button.recording {
+            background-color: var(--record-red); /* Red when recording */
+            animation: pulse 1.5s infinite; /* Pulsing effect */
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+        }
+
+        #record-status {
+            margin-left: 10px;
+            color: var(--secondary-color);
+            font-size: 0.9em;
+            display: none; /* Hidden by default */
         }
 
         /* --- Professional Product Display Styles --- */
@@ -144,7 +174,7 @@
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
             border: 1px solid var(--border-color);
-            overflow: hidden; /* For float clearing or general containment */
+            overflow: hidden;
         }
 
         .product-card-main-heading {
@@ -191,7 +221,7 @@
             text-decoration: underline;
         }
 
-        .product-title-text { /* For when no link is available */
+        .product-title-text {
             font-size: 1.1em;
             font-weight: 700;
             color: #333;
@@ -225,7 +255,7 @@
 
         .product-list {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Minimum 180px width for cards */
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 15px;
         }
 
@@ -263,11 +293,11 @@
             font-weight: 600;
             color: var(--primary-color);
             text-decoration: none;
-            display: block; /* Ensures title takes full width */
+            display: block;
             overflow: hidden;
             text-overflow: ellipsis;
-            white-space: nowrap; /* Prevents wrapping, forces ellipsis */
-            width: 100%; /* Ensures ellipsis works */
+            white-space: nowrap;
+            width: 100%;
         }
         .product-item-title:hover {
              text-decoration: underline;
@@ -280,7 +310,6 @@
             margin-top: 5px;
         }
         
-        /* برای سازگاری بهتر با خروجی HTML در nlp_engine */
         .message.bot .message-content p {
             margin: 0;
         }
@@ -292,7 +321,6 @@
             margin-bottom: 5px;
         }
 
-        /* Responsive adjustments */
         @media (max-width: 600px) {
             #chat-container {
                 width: 100%;
@@ -307,12 +335,33 @@
             }
             #input-area {
                 padding: 15px;
+                flex-wrap: wrap; /* Allow wrapping on small screens */
+            }
+            #user-input {
+                width: 100%;
+                margin-bottom: 10px; /* Space below input when wrapped */
+            }
+            #send-button, #record-button {
+                margin-left: 0;
+                margin-top: 5px;
+                width: calc(50% - 5px); /* Share row if wrapped */
+            }
+            #send-button {
+                margin-right: 5px;
+            }
+            #record-button {
+                margin-left: 5px;
+            }
+            #record-status {
+                width: 100%;
+                text-align: center;
+                margin-top: 10px;
             }
             .message-content {
                 max-width: 90%;
             }
             .product-list {
-                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); /* کوچکتر کردن کارت ها در موبایل */
+                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
             }
             .product-main-image {
                 width: 100px;
@@ -323,7 +372,7 @@
                 height: 70px;
             }
             .product-item-title {
-                white-space: normal; /* اجازه شکست خط در عناوین طولانی در موبایل */
+                white-space: normal;
             }
         }
     </style>
@@ -338,88 +387,195 @@
         </div>
         <div id="input-area">
             <input type="text" id="user-input" placeholder="Type your message...">
+            <button id="record-button"><i class="fas fa-microphone"></i> Record</button>
             <button id="send-button">Send</button>
+            <span id="record-status">00:00</span>
         </div>
     </div>
 
     <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
     <script type="text/javascript">
-        // این کد JS از طرح اولیه شماست اما با انتخابگرهای جدید ID/Class مطابقت داده شده
-        // همچنین از jQuery استفاده شده است که شما قبلاً در پروژه خود داشتید.
-
         const userInput = $('#user-input');
         const sendButton = $('#send-button');
+        const recordButton = $('#record-button');
+        const recordStatus = $('#record-status');
         const chatBox = $('#chat-box');
 
-        // تابع برای اضافه کردن پیام به چت باکس
-        function addMessageToChat(sender, messageHtml) {
-            // ایجاد یک عنصر div برای پیام
-            const $messageDiv = $('<div class="message"></div>');
-            // ایجاد محتوای پیام و افزودن کلاس فرستنده
-            const $messageContent = $('<div class="message-content"></div>');
-            $messageContent.addClass(sender);
-            
-            // استفاده از .html() برای رندر کردن HTML (برای محصولات)
-            $messageContent.html(messageHtml);
-            
-            // افزودن محتوا به دیو پیام و سپس به چت باکس
-            $messageDiv.append($messageContent);
-            chatBox.append($messageDiv);
-            
-            // اسکرول به پایین
-            chatBox.scrollTop(chatBox.prop('scrollHeight'));
+        let mediaRecorder;
+        let audioChunks = [];
+        let isRecording = false;
+        let recordingStartTime;
+        let recordingTimerInterval;
+        let audioStream; // To store the MediaStream so we can stop tracks
+
+        let currentAudioUserMessageId = null; // New variable to track the user's audio message placeholder
+
+        // Function to update the recording timer
+        function updateRecordingTimer() {
+            const elapsedTime = Math.floor((Date.now() - recordingStartTime) / 1000);
+            const minutes = String(Math.floor(elapsedTime / 60)).padStart(2, '0');
+            const seconds = String(elapsedTime % 60).padStart(2, '0');
+            recordStatus.text(`${minutes}:${seconds}`);
         }
 
-        // تابع برای ارسال پیام به FastAPI API
-        async function sendMessageToAPI(messageText) {
+        // Function to add messages to the chat box
+        function addMessageToChat(sender, messageHtml, messageId = null) {
+            const $messageDiv = $('<div class="message"></div>');
+            const $messageContent = $('<div class="message-content"></div>');
+            $messageContent.addClass(sender);
+            if (messageId) {
+                $messageContent.attr('id', messageId);
+            }
+            $messageContent.html(messageHtml);
+            $messageDiv.append($messageContent);
+            chatBox.append($messageDiv);
+            chatBox.scrollTop(chatBox.prop('scrollHeight'));
+            return $messageContent; // Return the content element for later updates
+        }
+
+        // Function to send text message to FastAPI API
+        async function sendTextMessageToAPI(messageText) {
             try {
-                // آدرس API شما که پیام را پردازش می کند
-                // این مسیر بر اساس تنظیمات web_chat.py و main.py به /chat/ می رود
                 const response = await fetch("/chat/", { 
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ text: messageText, source: "chat", lang: "en" })
                 });
                 const data = await response.json();
-                return data.reply; // انتظار داریم پاسخ از FastAPI در فیلد 'reply' باشد
+                return data.reply;
             } catch (error) {
-                console.error("Error sending message to API:", error);
-                return "Sorry, something went wrong."; // مدیریت خطا
+                console.error("Error sending text message to API:", error);
+                return "Sorry, something went wrong with the text response.";
             }
         }
 
-        // رویدادها برای ارسال پیام
+        // Function to send audio file to FastAPI API (Whisper endpoint)
+        async function sendAudioToAPI(audioBlob) {
+            const formData = new FormData();
+            formData.append("audio_file", audioBlob, "audio.webm");
+            formData.append("language", "english"); 
+            formData.append("task", "transcribe"); 
+
+            try {
+                const response = await fetch("/api/process_audio", {
+                    method: "POST",
+                    body: formData,
+                });
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`Server error: ${response.status} - ${errorData.detail || 'Unknown error'}`);
+                }
+                const data = await response.json();
+                return data.transcribed_text; 
+            } catch (error) {
+                console.error("Error sending audio to API:", error);
+                return `Error processing audio: ${error.message}`;
+            }
+        }
+
+        // --- Main Send Message Function (handles both text and audio transcription) ---
+        async function sendMessage(messageText = null, audioBlob = null) {
+            if (messageText) {
+                const userMessage = messageText.trim();
+                if (userMessage === '') return;
+                addMessageToChat('user', userMessage);
+                userInput.val(''); 
+                
+                const loadingBotMessage = addMessageToChat('bot', '<span class="loading-dots">...</span>'); 
+                const botReply = await sendTextMessageToAPI(userMessage); 
+                
+                loadingBotMessage.remove(); // Remove the specific loading message
+                addMessageToChat('bot', botReply); 
+                
+            } else if (audioBlob) {
+                // Add a placeholder for the user's audio input
+                const userAudioPlaceholder = addMessageToChat('user', '<i class="fas fa-microphone"></i> Recording ended. Processing audio...', 'audio-input-placeholder');
+                
+                // Add a loading indicator for transcription
+                const transcriptionLoadingMessage = addMessageToChat('bot', '<span class="loading-dots">Transcribing audio...</span>');
+                
+                const transcribedText = await sendAudioToAPI(audioBlob);
+                transcriptionLoadingMessage.remove(); // Remove transcription loading indicator
+                
+                if (transcribedText.startsWith("Error processing audio:")) {
+                     userAudioPlaceholder.html(`<i class="fas fa-exclamation-triangle"></i> Audio processing failed.`); // Update placeholder on error
+                     addMessageToChat('bot', transcribedText); // Display transcription error
+                     return;
+                }
+
+                // Update the placeholder with the actual transcribed text
+                userAudioPlaceholder.html(`<i class="fas fa-microphone"></i> ${transcribedText}`);
+                
+                // Now send the transcribed text to the NLP endpoint
+                const nlpLoadingMessage = addMessageToChat('bot', '<span class="loading-dots">Generating response...</span>');
+                const botReply = await sendTextMessageToAPI(transcribedText);
+                
+                nlpLoadingMessage.remove(); // Remove NLP loading indicator
+                addMessageToChat('bot', botReply);
+            }
+        }
+
+        // --- Event Listeners for Buttons ---
         sendButton.on('click', function() {
-            sendMessage();
+            sendMessage(userInput.val());
         });
 
         userInput.on('keypress', function(e) {
             if (e.key === 'Enter') {
-                sendMessage();
+                sendMessage(userInput.val());
             }
         });
 
-        // تابع اصلی ارسال پیام (مدیریت پیام کاربر و پاسخ ربات)
-        async function sendMessage() {
-            const message = userInput.val().trim();
-            if (message === '') return;
+        recordButton.on('click', async function() {
+            if (!isRecording) {
+                // Start recording
+                try {
+                    audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(audioStream, { mimeType: 'audio/webm; codecs=opus' });
+                    
+                    audioChunks = [];
+                    mediaRecorder.ondataavailable = event => {
+                        audioChunks.push(event.data);
+                    };
 
-            addMessageToChat('user', message); // نمایش پیام کاربر
-            userInput.val(''); // پاک کردن ورودی
+                    mediaRecorder.onstop = async () => {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/webm; codecs=opus' });
+                        console.log("Audio recorded:", audioBlob);
+                        await sendMessage(null, audioBlob); // Send recorded audio
+                    };
 
-            // اضافه کردن حالت بارگذاری
-            addMessageToChat('bot', '<span class="loading-dots">...</span>');
-            chatBox.find('.loading-dots').last().parent().addClass('loading-message'); // یک کلاس برای شناسایی پیام لودینگ
+                    mediaRecorder.start();
+                    isRecording = true;
+                    recordButton.addClass('recording').html('<i class="fas fa-stop"></i> Stop Recording');
+                    recordStatus.show().text('00:00');
+                    recordingStartTime = Date.now();
+                    recordingTimerInterval = setInterval(updateRecordingTimer, 1000);
+                    userInput.prop('disabled', true);
+                    sendButton.prop('disabled', true);
 
-            const botReply = await sendMessageToAPI(message);
-            
-            // حذف پیام لودینگ و نمایش پاسخ واقعی
-            chatBox.find('.loading-message').last().remove(); // یا جایگزینی محتوا
+                } catch (err) {
+                    console.error('Error accessing microphone:', err);
+                    addMessageToChat('bot', 'Error: Could not access microphone. Please check permissions.');
+                    isRecording = false;
+                    recordButton.removeClass('recording').html('<i class="fas fa-microphone"></i> Record');
+                    recordStatus.hide();
+                    userInput.prop('disabled', false);
+                    sendButton.prop('disabled', false);
+                }
+            } else {
+                // Stop recording
+                mediaRecorder.stop();
+                audioStream.getTracks().forEach(track => track.stop());
+                clearInterval(recordingTimerInterval);
+                isRecording = false;
+                recordButton.removeClass('recording').html('<i class="fas fa-microphone"></i> Record');
+                recordStatus.hide();
+                userInput.prop('disabled', false);
+                sendButton.prop('disabled', false);
+            }
+        });
 
-            addMessageToChat('bot', botReply); // نمایش پاسخ ربات
-        }
-
-        // پیام خوش آمد گویی اولیه از ربات
+        // Initial welcome message from the bot
         $(document).ready(function() {
             addMessageToChat('bot', 'Hello! How can I help you today?');
         });
