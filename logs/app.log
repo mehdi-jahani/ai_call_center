@@ -38,3 +38,13 @@
 2025-06-16 10:25:28,845 - main - INFO - Temporary audio directory already exists: C:\Users\ShemroonShop\Desktop\my_bots\ai_call_center\api_interface\..\temp_audio_files
 2025-06-16 10:30:59,225 - phonemizer - WARNING - words count mismatch on 100.0% of the lines (1/1)
 2025-06-16 10:30:59,243 - phonemizer - WARNING - words count mismatch on 100.0% of the lines (1/1)
+2025-06-16 10:38:31,740 - main - INFO - Application startup event: Loading all necessary AI models and setting up directories...
+2025-06-16 10:38:40,169 - main - INFO - Temporary audio directory already exists: C:\Users\ShemroonShop\Desktop\my_bots\ai_call_center\api_interface\..\temp_audio_files
+2025-06-16 10:46:13,507 - phonemizer - WARNING - words count mismatch on 100.0% of the lines (1/1)
+2025-06-16 10:46:13,519 - phonemizer - WARNING - words count mismatch on 100.0% of the lines (1/1)
+2025-06-16 10:55:45,437 - main - INFO - Application startup event: Loading all necessary AI models and setting up directories...
+2025-06-16 10:55:51,421 - main - INFO - Temporary audio directory already exists: C:\Users\ShemroonShop\Desktop\my_bots\ai_call_center\api_interface\..\temp_audio_files
+2025-06-16 11:00:20,165 - phonemizer - WARNING - words count mismatch on 100.0% of the lines (1/1)
+2025-06-16 11:00:20,170 - phonemizer - WARNING - words count mismatch on 100.0% of the lines (1/1)
+2025-06-16 11:07:00,193 - main - INFO - Application startup event: Loading all necessary AI models and setting up directories...
+2025-06-16 11:07:06,473 - main - INFO - Temporary audio directory already exists: C:\Users\ShemroonShop\Desktop\my_bots\ai_call_center\api_interface\..\temp_audio_files
