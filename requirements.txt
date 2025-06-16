@@ -6,3 +6,4 @@ librosa
 datasets
 accelerate
 torchaudio
+kokoro

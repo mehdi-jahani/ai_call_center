@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Assistant Chat</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <!-- Font Awesome for microphone icon -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         :root {
@@ -14,8 +14,10 @@
             --secondary-color: #6c757d;
             --background-light: #f0f2f5;
             --card-background: #ffffff;
-            --chat-bubble-user: #007bff; /* User messages: Blue background */
-            --chat-bubble-bot: #FFFFFF; /* Bot messages: White background */
+            --chat-bubble-user: #007bff;
+            /* User messages: Blue background */
+            --chat-bubble-bot: #FFFFFF;
+            /* Bot messages: White background */
             --text-color-user: white;
             --text-color-bot: #333;
             --border-color: #e0e0e0;
@@ -81,7 +83,7 @@
             max-width: 75%;
             line-height: 1.5;
             word-wrap: break-word;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
         .message .message-content.user {
@@ -100,7 +102,8 @@
 
         #input-area {
             display: flex;
-            align-items: center; /* Align items vertically in center */
+            align-items: center;
+            /* Align items vertically in center */
             padding: 20px;
             background-color: var(--background-light);
             border-top: 1px solid var(--border-color);
@@ -121,7 +124,8 @@
             box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
         }
 
-        #send-button, #record-button {
+        #send-button,
+        #record-button {
             background-color: var(--primary-color);
             color: var(--text-color-user);
             border: none;
@@ -132,13 +136,16 @@
             font-size: 1em;
             font-weight: 600;
             transition: background-color 0.3s ease, transform 0.2s ease;
-            display: flex; /* For icon and text alignment */
+            display: flex;
+            /* For icon and text alignment */
             align-items: center;
             justify-content: center;
-            flex-shrink: 0; /* Prevent buttons from shrinking */
+            flex-shrink: 0;
+            /* Prevent buttons from shrinking */
         }
 
-        #send-button:hover, #record-button:hover {
+        #send-button:hover,
+        #record-button:hover {
             background-color: var(--primary-dark);
             transform: translateY(-1px);
         }
@@ -146,23 +153,34 @@
         #record-button i {
             margin-right: 5px;
         }
-        
+
         #record-button.recording {
-            background-color: var(--record-red); /* Red when recording */
-            animation: pulse 1.5s infinite; /* Pulsing effect */
+            background-color: var(--record-red);
+            /* Red when recording */
+            animation: pulse 1.5s infinite;
+            /* Pulsing effect */
         }
 
         @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+            0% {
+                box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(231, 76, 60, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(231, 76, 60, 0);
+            }
         }
 
         #record-status {
             margin-left: 10px;
             color: var(--secondary-color);
             font-size: 0.9em;
-            display: none; /* Hidden by default */
+            display: none;
+            /* Hidden by default */
         }
 
         /* --- Professional Product Display Styles --- */
@@ -200,7 +218,7 @@
             border-radius: 8px;
             border: 1px solid #ddd;
             flex-shrink: 0;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
         }
 
         .main-product-info {
@@ -216,6 +234,7 @@
             margin-bottom: 5px;
             transition: color 0.2s ease;
         }
+
         .product-title-link:hover {
             color: var(--primary-dark);
             text-decoration: underline;
@@ -299,8 +318,9 @@
             white-space: nowrap;
             width: 100%;
         }
+
         .product-item-title:hover {
-             text-decoration: underline;
+            text-decoration: underline;
         }
 
         .product-item-price {
@@ -309,14 +329,16 @@
             font-size: 0.9em;
             margin-top: 5px;
         }
-        
+
         .message.bot .message-content p {
             margin: 0;
         }
+
         .message.bot .message-content ul {
             padding-left: 20px;
             margin: 0;
         }
+
         .message.bot .message-content li {
             margin-bottom: 5px;
         }
@@ -327,56 +349,104 @@
                 height: 100vh;
                 border-radius: 0;
             }
+
             .chat-header {
                 border-radius: 0;
             }
+
             #chat-box {
                 padding: 15px;
             }
+
             #input-area {
                 padding: 15px;
-                flex-wrap: wrap; /* Allow wrapping on small screens */
+                flex-wrap: wrap;
+                /* Allow wrapping on small screens */
             }
+
             #user-input {
                 width: 100%;
-                margin-bottom: 10px; /* Space below input when wrapped */
+                margin-bottom: 10px;
+                /* Space below input when wrapped */
             }
-            #send-button, #record-button {
+
+            #send-button,
+            #record-button {
                 margin-left: 0;
                 margin-top: 5px;
-                width: calc(50% - 5px); /* Share row if wrapped */
+                width: calc(50% - 5px);
+                /* Share row if wrapped */
             }
+
             #send-button {
                 margin-right: 5px;
             }
+
             #record-button {
                 margin-left: 5px;
             }
+
             #record-status {
                 width: 100%;
                 text-align: center;
                 margin-top: 10px;
             }
+
             .message-content {
                 max-width: 90%;
             }
+
             .product-list {
                 grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
             }
+
             .product-main-image {
                 width: 100px;
                 height: 100px;
             }
+
             .product-thumbnail {
                 max-width: 70px;
                 height: 70px;
             }
+
             .product-item-title {
                 white-space: normal;
             }
         }
+
+        .play-audio-btn {
+            background: none;
+            border: none;
+            margin-left: 10px;
+            cursor: pointer;
+            color: var(--primary-color);
+            font-size: 1.1em;
+            transition: color 0.2s;
+            vertical-align: middle;
+        }
+
+        .play-audio-btn:hover {
+            color: var(--primary-dark);
+        }
+
+        .play-audio-btn:focus {
+            outline: none;
+        }
+
+        .message-content.bot {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .bot-text {
+            flex: 1 1 auto;
+            display: inline-block;
+        }
     </style>
 </head>
+
 <body>
     <div id="chat-container">
         <div class="chat-header">
@@ -408,8 +478,6 @@
         let recordingTimerInterval;
         let audioStream; // To store the MediaStream so we can stop tracks
 
-        let currentAudioUserMessageId = null; // New variable to track the user's audio message placeholder
-
         // Function to update the recording timer
         function updateRecordingTimer() {
             const elapsedTime = Math.floor((Date.now() - recordingStartTime) / 1000);
@@ -418,7 +486,7 @@
             recordStatus.text(`${minutes}:${seconds}`);
         }
 
-        // Function to add messages to the chat box
+        // Add message to chat and optionally returns the element for later update
         function addMessageToChat(sender, messageHtml, messageId = null) {
             const $messageDiv = $('<div class="message"></div>');
             const $messageContent = $('<div class="message-content"></div>');
@@ -430,22 +498,52 @@
             $messageDiv.append($messageContent);
             chatBox.append($messageDiv);
             chatBox.scrollTop(chatBox.prop('scrollHeight'));
-            return $messageContent; // Return the content element for later updates
+            return $messageContent;
         }
 
-        // Function to send text message to FastAPI API
+        // --- نسخه جدید: نمایش پیام ربات با آیکون بلندگو ---
+        function handleBotReply(botReplyObj) {
+            // botReplyObj: { reply: "...", reply_audio_url: "/static/audio/xxx.wav" }
+            let messageHtml = `<span class="bot-text">${botReplyObj.reply}</span>`;
+            if (botReplyObj.reply_audio_url) {
+                messageHtml += `
+                  <button class="play-audio-btn" title="Play audio" data-audio-url="${botReplyObj.reply_audio_url}">
+                    <i class="fas fa-volume-up"></i>
+                  </button>
+                `;
+            }
+            addMessageToChat('bot', messageHtml);
+        }
+
+        // Event delegation: پخش صدا با کلیک روی آیکون بلندگو
+        $(document).on('click', '.play-audio-btn', function () {
+            const audioUrl = $(this).data('audio-url');
+            if (!audioUrl) return;
+            // یک پلیر مخفی بساز و فقط همین صدا را پخش کن
+            let audioElem = document.getElementById('bot-audio-player');
+            if (!audioElem) {
+                audioElem = document.createElement('audio');
+                audioElem.id = 'bot-audio-player';
+                audioElem.style.display = 'none';
+                document.body.appendChild(audioElem);
+            }
+            audioElem.src = audioUrl;
+            audioElem.play();
+        });
+
+        // --- ارسال پیام متنی و دریافت پاسخ متن+صوت ---
         async function sendTextMessageToAPI(messageText) {
             try {
-                const response = await fetch("/chat/", { 
+                const response = await fetch("/chat/", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ text: messageText, source: "chat", lang: "en" })
                 });
                 const data = await response.json();
-                return data.reply;
+                return data;
             } catch (error) {
                 console.error("Error sending text message to API:", error);
-                return "Sorry, something went wrong with the text response.";
+                return { reply: "Sorry, something went wrong with the text response.", reply_audio_url: null };
             }
         }
 
@@ -453,8 +551,8 @@
         async function sendAudioToAPI(audioBlob) {
             const formData = new FormData();
             formData.append("audio_file", audioBlob, "audio.webm");
-            formData.append("language", "english"); 
-            formData.append("task", "transcribe"); 
+            formData.append("language", "english");
+            formData.append("task", "transcribe");
 
             try {
                 const response = await fetch("/api/process_audio", {
@@ -466,7 +564,7 @@
                     throw new Error(`Server error: ${response.status} - ${errorData.detail || 'Unknown error'}`);
                 }
                 const data = await response.json();
-                return data.transcribed_text; 
+                return data.transcribed_text;
             } catch (error) {
                 console.error("Error sending audio to API:", error);
                 return `Error processing audio: ${error.message}`;
@@ -479,60 +577,57 @@
                 const userMessage = messageText.trim();
                 if (userMessage === '') return;
                 addMessageToChat('user', userMessage);
-                userInput.val(''); 
-                
-                const loadingBotMessage = addMessageToChat('bot', '<span class="loading-dots">...</span>'); 
-                const botReply = await sendTextMessageToAPI(userMessage); 
-                
-                loadingBotMessage.remove(); // Remove the specific loading message
-                addMessageToChat('bot', botReply); 
-                
+                userInput.val('');
+
+                const loadingBotMessage = addMessageToChat('bot', '<span class="loading-dots">...</span>');
+                const botReplyObj = await sendTextMessageToAPI(userMessage);
+
+                loadingBotMessage.remove();
+                handleBotReply(botReplyObj);
             } else if (audioBlob) {
                 // Add a placeholder for the user's audio input
                 const userAudioPlaceholder = addMessageToChat('user', '<i class="fas fa-microphone"></i> Recording ended. Processing audio...', 'audio-input-placeholder');
-                
+
                 // Add a loading indicator for transcription
                 const transcriptionLoadingMessage = addMessageToChat('bot', '<span class="loading-dots">Transcribing audio...</span>');
-                
+
                 const transcribedText = await sendAudioToAPI(audioBlob);
-                transcriptionLoadingMessage.remove(); // Remove transcription loading indicator
-                
+                transcriptionLoadingMessage.remove();
+
                 if (transcribedText.startsWith("Error processing audio:")) {
-                     userAudioPlaceholder.html(`<i class="fas fa-exclamation-triangle"></i> Audio processing failed.`); // Update placeholder on error
-                     addMessageToChat('bot', transcribedText); // Display transcription error
-                     return;
+                    userAudioPlaceholder.html(`<i class="fas fa-exclamation-triangle"></i> Audio processing failed.`);
+                    addMessageToChat('bot', transcribedText);
+                    return;
                 }
 
-                // Update the placeholder with the actual transcribed text
                 userAudioPlaceholder.html(`<i class="fas fa-microphone"></i> ${transcribedText}`);
-                
-                // Now send the transcribed text to the NLP endpoint
+
+                // حالا پیام متنی استخراج شده از صدا را ارسال کن و خروجی صوتی هم بگیر
                 const nlpLoadingMessage = addMessageToChat('bot', '<span class="loading-dots">Generating response...</span>');
-                const botReply = await sendTextMessageToAPI(transcribedText);
-                
-                nlpLoadingMessage.remove(); // Remove NLP loading indicator
-                addMessageToChat('bot', botReply);
+                const botReplyObj = await sendTextMessageToAPI(transcribedText);
+                nlpLoadingMessage.remove();
+                handleBotReply(botReplyObj);
             }
         }
 
         // --- Event Listeners for Buttons ---
-        sendButton.on('click', function() {
+        sendButton.on('click', function () {
             sendMessage(userInput.val());
         });
 
-        userInput.on('keypress', function(e) {
+        userInput.on('keypress', function (e) {
             if (e.key === 'Enter') {
                 sendMessage(userInput.val());
             }
         });
 
-        recordButton.on('click', async function() {
+        recordButton.on('click', async function () {
             if (!isRecording) {
                 // Start recording
                 try {
                     audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
                     mediaRecorder = new MediaRecorder(audioStream, { mimeType: 'audio/webm; codecs=opus' });
-                    
+
                     audioChunks = [];
                     mediaRecorder.ondataavailable = event => {
                         audioChunks.push(event.data);
@@ -541,7 +636,7 @@
                     mediaRecorder.onstop = async () => {
                         const audioBlob = new Blob(audioChunks, { type: 'audio/webm; codecs=opus' });
                         console.log("Audio recorded:", audioBlob);
-                        await sendMessage(null, audioBlob); // Send recorded audio
+                        await sendMessage(null, audioBlob);
                     };
 
                     mediaRecorder.start();
@@ -576,9 +671,10 @@
         });
 
         // Initial welcome message from the bot
-        $(document).ready(function() {
+        $(document).ready(function () {
             addMessageToChat('bot', 'Hello! How can I help you today?');
         });
     </script>
 </body>
+
 </html>

@@ -5,26 +5,24 @@ from chat_interface.web_chat import router as chat_ui_router
 from speech_to_text.whisper_handler import load_whisper_model
 import os
 from api_interface.routes import TEMP_AUDIO_DIR
-import logging # اضافه شده: برای سیستم لاگینگ
+import logging
 
 # پیکربندی اولیه لاگینگ
-# لاگ‌ها در پوشه logs/ و فایل app.log ذخیره می‌شوند
 LOG_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs')
 LOG_FILE_PATH = os.path.join(LOG_DIR, 'app.log')
 
-# اطمینان از وجود پوشه لاگ قبل از پیکربندی لاگینگ
 if not os.path.exists(LOG_DIR):
     os.makedirs(LOG_DIR)
 
 logging.basicConfig(
-    level=logging.INFO, # سطح لاگینگ (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+    level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler(LOG_FILE_PATH), # ذخیره لاگ ها در فایل
-        logging.StreamHandler() # نمایش لاگ ها در کنسول (همانند print)
+        logging.FileHandler(LOG_FILE_PATH),
+        logging.StreamHandler()
     ]
 )
-logger = logging.getLogger(__name__) # ایجاد یک لاگر برای این ماژول
+logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
@@ -34,8 +32,12 @@ app.include_router(chat_ui_router, prefix="/chat")
 # مسیرهای API
 app.include_router(api_router)
 
-# این خطوط برای سرویس‌دهی فایل‌های استاتیک ضروری هستند.
-app.mount("/static", StaticFiles(directory="data"), name="static")
+# -- نکته: mount دقیق‌تر (audio) باید قبل از mount کلی‌تر (static) بیاید --
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # مسیر اصلی پروژه
+AUDIO_DIR = os.path.join(BASE_DIR, "outputs", "audio")
+os.makedirs(AUDIO_DIR, exist_ok=True)
+app.mount("/static/audio", StaticFiles(directory=AUDIO_DIR), name="audio")    # اول mount کن
+app.mount("/static", StaticFiles(directory="data"), name="static")            # بعد mount کن
 
 @app.on_event("startup")
 async def startup_event():
@@ -52,7 +54,6 @@ async def startup_event():
         logger.info(f"Created temporary audio directory: {TEMP_AUDIO_DIR}")
     else:
         logger.info(f"Temporary audio directory already exists: {TEMP_AUDIO_DIR}")
-
 
 @app.get("/")
 def root():
